@@ -32,14 +32,9 @@ setup(
     long_description=readme,
     author="fate0",
     author_email='fate0@fatezero.org',
-    url='https://github.com/fate0/getproxy',
+    url='https://github.com/vasinkd/getproxy',
     packages=find_packages(),
     package_dir={},
-    entry_points={
-        'console_scripts': [
-            'getproxy=getproxy.cli:main'
-        ]
-    },
     include_package_data=True,
     install_requires=requirements,
     license="BSD license",
