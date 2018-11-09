@@ -1,11 +1,12 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals, absolute_import, division, \
+    print_function
+
 import gevent.monkey
 gevent.monkey.patch_all()
 
-from __future__ import unicode_literals, absolute_import, division, \
-    print_function
 import os
 import sys
 import json
