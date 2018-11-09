@@ -4,9 +4,6 @@
 from __future__ import unicode_literals, absolute_import, division, \
     print_function
 
-import gevent.monkey
-gevent.monkey.patch_all()
-
 import os
 import sys
 import json
