@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO)
 class GetProxy(object):
     base_dir = os.path.dirname(os.path.realpath(__file__))
 
-    def __init__(self, input_proxies=None,
+    def __init__(self, input_proxies=[],
                  banned_ip_list=None, only_https=False,
                  max_response_time=None, only_anonimous=False):
         self.pool = gevent.pool.Pool(500)
