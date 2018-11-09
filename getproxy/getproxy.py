@@ -27,7 +27,7 @@ class GetProxy(object):
     base_dir = os.path.dirname(os.path.realpath(__file__))
 
     def __init__(self, input_proxies=[],
-                 banned_ip_list=None, only_https=False,
+                 banned_ip_list=[], only_https=False,
                  max_response_time=None, only_anonimous=False):
         self.pool = gevent.pool.Pool(500)
         self.plugins = []
@@ -57,7 +57,7 @@ class GetProxy(object):
         if proxy_hash in self.proxies_hash:
             return
 
-        if host in self.banned_ip_file:
+        if host in self.banned_ip_list:
             return
 
         self.proxies_hash[proxy_hash] = True
