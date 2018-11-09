@@ -4,6 +4,10 @@
 from __future__ import unicode_literals, absolute_import, division, \
     print_function
 
+import gevent.monkey
+gevent.monkey.patch_all()
+
+
 import os
 import sys
 import json
@@ -38,6 +42,7 @@ class GetProxy(object):
         self.proxies_hash = {}
         self.only_https = only_https
         self.max_response_time = max_response_time
+        self.only_anonimous = only_anonimous
         self.origin_ip = None
         self.geoip_reader = None
 
