@@ -24,7 +24,6 @@ from .utils import signal_name, load_object
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 
 class GetProxy(object):
@@ -147,7 +146,6 @@ class GetProxy(object):
 
     def _request_force_stop(self, signum, _):
         logger.warning("[-] Cold shut down")
-        self.save_proxies()
 
         raise SystemExit()
 
@@ -160,25 +158,25 @@ class GetProxy(object):
         logger.warning("[-] Press Ctrl+C again for a cold shutdown.")
 
     def init(self):
-        logger.info("[*] Init")
+        logger.debug("[*] Init")
         signal.signal(signal.SIGINT, self._request_stop)
         signal.signal(signal.SIGTERM, self._request_stop)
 
         rp = requests.get('http://httpbin.org/get')
         self.origin_ip = rp.json().get('origin', '')
-        logger.info("[*] Current Ip Address: %s" % self.origin_ip)
+        logger.debug("[*] Current Ip Address: %s" % self.origin_ip)
 
         self.geoip_reader = geoip2.database.Reader(
             os.path.join(self.base_dir, 'data/GeoLite2-Country.mmdb'))
 
     def validate_input_proxies(self):
-        logger.info("[*] Validate input proxies")
+        logger.debug("[*] Validate input proxies")
         self.valid_proxies = self._validate_proxy_list(self.input_proxies)
-        logger.info("[*] Check %s input proxies, Got %s valid input proxies" %
+        logger.debug("[*] Check %s input proxies, Got %s valid input proxies" %
                     (len(self.proxies_hash), len(self.valid_proxies)))
 
     def load_plugins(self):
-        logger.info("[*] Load plugins")
+        logger.debug("[*] Load plugins")
         for plugin_name in os.listdir(os.path.join(self.base_dir, 'plugin')):
             if os.path.splitext(plugin_name)[1] != '.py' or \
                     plugin_name == '__init__.py':
@@ -189,7 +187,7 @@ class GetProxy(object):
                     "getproxy.plugin.%s.Proxy" % os.path.splitext(
                         plugin_name)[0])
             except Exception as e:
-                logger.info("[-] Load Plugin %s error: %s" % (
+                logger.warning("[-] Load Plugin %s error: %s" % (
                     plugin_name, str(e)))
                 continue
 
@@ -198,7 +196,7 @@ class GetProxy(object):
             self.plugins.append(inst)
 
     def grab_web_proxies(self):
-        logger.info("[*] Grab proxies")
+        logger.debug("[*] Grab proxies")
 
         for plugin in self.plugins:
             self.pool.spawn(plugin.start)
@@ -209,7 +207,7 @@ class GetProxy(object):
         self._collect_result()
 
     def validate_web_proxies(self):
-        logger.info("[*] Validate web proxies")
+        logger.debug("[*] Validate web proxies")
         input_proxies_len = len(self.proxies_hash)
 
         valid_proxies = self._validate_proxy_list(self.web_proxies)
