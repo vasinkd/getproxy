@@ -122,7 +122,7 @@ class GetProxy(object):
         self.threads = [Thread(target=self.validate_proxy,
                                name="ProxyValidator " + str(x),
                                args=(queue, valid_proxies))
-                        for x in range(self.n_workers)]
+                        for x in range(self.n_threads)]
 
         for thread in self.threads:
             thread.setDaemon(True)
