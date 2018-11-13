@@ -200,11 +200,14 @@ class GetProxy(object):
     def grab_web_proxies(self):
         logger.debug("[*] Grab proxies")
 
-        for plugin in self.plugins:
-            self.pool.spawn(plugin.start)
+        threads = [Thread(target=plugin.start, args=())
+                   for plugin in self.plugins]
+        for t in threads:
+            t.setDaemon(True)
+            t.start()
 
-        self.pool.join(timeout=8 * 60)
-        self.pool.kill()
+        for t in threads:
+            t.join()
 
         self._collect_result()
 
