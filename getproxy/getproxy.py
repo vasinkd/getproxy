@@ -29,15 +29,13 @@ logger = logging.getLogger(__name__)
 class GetProxy(object):
     base_dir = os.path.dirname(os.path.realpath(__file__))
 
-    def __init__(self, input_proxies=[],
-                 banned_ip_list=[], only_https=False,
+    def __init__(self, input_proxies=[], only_https=False,
                  max_response_time=None, only_anonimous=False):
         self.pool = gevent.pool.Pool(500)
         self.plugins = []
         self.web_proxies = []
         self.valid_proxies = []
         self.input_proxies = input_proxies
-        self.banned_ip_list = banned_ip_list
         self.proxies_hash = {}
         self.only_https = only_https
         self.max_response_time = max_response_time
@@ -59,9 +57,6 @@ class GetProxy(object):
 
         proxy_hash = '%s://%s:%s' % (scheme, host, port)
         if proxy_hash in self.proxies_hash:
-            return
-
-        if host in self.banned_ip_list:
             return
 
         self.proxies_hash[proxy_hash] = True
@@ -220,20 +215,6 @@ class GetProxy(object):
             (output_proxies_len, len(valid_proxies)))
         logger.info("[*] Check %s proxies, Got %s valid proxies" %
                     (len(self.proxies_hash), len(self.valid_proxies)))
-
-    def save_proxies(self):
-        if self.output_proxies_file:
-            outfile = open(self.output_proxies_file, 'w')
-        else:
-            outfile = sys.stdout
-
-        for item in self.valid_proxies:
-            outfile.write("%s\n" % json.dumps(item))
-
-        outfile.flush()
-
-        if outfile != sys.stdout:
-            outfile.close()
 
     def start(self):
         self.init()

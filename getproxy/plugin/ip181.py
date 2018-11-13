@@ -32,7 +32,7 @@ class Proxy(object):
                 raise Exception("empty")
 
         except Exception as e:
-            logger.error("[-] Request page {page} error: {error}".format(page=page_num, error=str(e)))
+            logger.warning("[-] Request page {page} error: {error}".format(page=page_num, error=str(e)))
             while self.proxies:
                 new_proxy = self.proxies.pop(0)
                 self.cur_proxy = {new_proxy['type']: "%s:%s" % (new_proxy['host'], new_proxy['port'])}
