@@ -4,12 +4,7 @@
 from __future__ import unicode_literals, absolute_import, division, \
     print_function
 
-import gevent.monkey
-gevent.monkey.patch_all()
-
-
 import os
-import sys
 import json
 import time
 import copy
@@ -17,8 +12,10 @@ import signal
 import logging
 
 import requests
-import gevent.pool
 import geoip2.database
+
+from threading import Thread
+from queue import Queue, Empty
 
 from .utils import signal_name, load_object
 
@@ -30,8 +27,8 @@ class GetProxy(object):
     base_dir = os.path.dirname(os.path.realpath(__file__))
 
     def __init__(self, input_proxies=[], only_https=False,
-                 max_response_time=None, only_anonimous=False):
-        self.pool = gevent.pool.Pool(500)
+                 max_response_time=None, only_anonimous=False,
+                 n_threads=200):
         self.plugins = []
         self.web_proxies = []
         self.valid_proxies = []
@@ -42,6 +39,7 @@ class GetProxy(object):
         self.only_anonimous = only_anonimous
         self.origin_ip = None
         self.geoip_reader = None
+        self.n_threads = n_threads
 
     def _collect_result(self):
         for plugin in self.plugins:
@@ -102,24 +100,34 @@ class GetProxy(object):
             "from": proxy.get('from')
         }
 
+    def validate_proxy(self, queue, valid_proxies):
+        while True:
+            try:
+                proxy = queue.get(timeout=10)
+                res = self._validate_proxy(proxy)
+                if res:
+                    valid_proxies.append(res)
+                queue.task_done()
+            except Empty:
+                return
+
     def _validate_proxy_list(self, proxies, timeout=300):
         valid_proxies = []
 
-        def save_result(p):
-            if p:
-                valid_proxies.append(p)
-
+        queue = Queue()
         for proxy in proxies:
-            if not self.only_https:
-                self.pool.apply_async(self._validate_proxy,
-                                      args=(proxy, 'http'),
-                                      callback=save_result)
-            self.pool.apply_async(self._validate_proxy,
-                                  args=(proxy, 'https'),
-                                  callback=save_result)
+            self.queue.put(proxies)
 
-        self.pool.join(timeout=timeout)
-        self.pool.kill()
+        self.threads = [Thread(target=self.validate_proxy,
+                               name="ProxyValidator " + str(x),
+                               args=(queue, valid_proxies))
+                        for x in range(self.n_workers)]
+
+        for thread in self.threads:
+            thread.setDaemon(True)
+            thread.start()
+
+        self.queue.join()
 
         return valid_proxies
 
@@ -149,8 +157,6 @@ class GetProxy(object):
 
         signal.signal(signal.SIGINT, self._request_force_stop)
         signal.signal(signal.SIGTERM, self._request_force_stop)
-
-        logger.warning("[-] Press Ctrl+C again for a cold shutdown.")
 
     def init(self):
         logger.debug("[*] Init")
