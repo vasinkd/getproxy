@@ -104,6 +104,7 @@ class GetProxy(object):
         while True:
             try:
                 proxy = queue.get(timeout=10)
+                logger.debug("validating proxy %s", proxy)
                 res = self._validate_proxy(proxy)
                 if res:
                     valid_proxies.append(res)
