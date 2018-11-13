@@ -117,7 +117,7 @@ class GetProxy(object):
 
         queue = Queue()
         for proxy in proxies:
-            queue.put(proxies)
+            queue.put(proxy)
 
         self.threads = [Thread(target=self.validate_proxy,
                                name="ProxyValidator " + str(x),
