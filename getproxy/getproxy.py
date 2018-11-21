@@ -181,7 +181,7 @@ class GetProxy(object):
         logger.debug("[*] Load plugins")
         for plugin_name in os.listdir(os.path.join(self.base_dir, 'plugin')):
             if os.path.splitext(plugin_name)[1] != '.py' or \
-                    plugin_name == '__init__.py':
+                    plugin_name in ['__init__.py', 'ip181.py', 'xicidaili.py']:
                 continue
 
             try:
@@ -221,7 +221,7 @@ class GetProxy(object):
         output_proxies_len = len(self.proxies_hash) - input_proxies_len
 
         logger.info(
-            "[*] Check %s output proxies, Got %s valid output proxies" %
+            "[*] Check %s new proxies, Got %s valid new proxies" %
             (output_proxies_len, len(valid_proxies)))
         logger.info("[*] Check %s proxies, Got %s valid proxies" %
                     (len(self.proxies_hash), len(self.valid_proxies)))
