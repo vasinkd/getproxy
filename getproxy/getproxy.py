@@ -105,7 +105,10 @@ class GetProxy(object):
             try:
                 proxy = queue.get(timeout=10)
                 logger.debug("validating proxy %s", proxy)
-                res = self._validate_proxy(proxy)
+                try:
+                    res = self._validate_proxy(proxy)
+                except:
+                    res = None
                 if res:
                     valid_proxies.append(res)
                 queue.task_done()
@@ -207,7 +210,7 @@ class GetProxy(object):
             t.start()
 
         for t in threads:
-            t.join()
+            t.join(600)
 
         self._collect_result()
 
