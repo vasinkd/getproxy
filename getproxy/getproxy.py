@@ -8,7 +8,7 @@ import os
 import json
 import time
 import copy
-import signal
+# import signal
 import logging
 
 import requests
@@ -17,7 +17,8 @@ import geoip2.database
 from threading import Thread
 from queue import Queue, Empty
 
-from .utils import signal_name, load_object
+# from .utils import signal_name
+from .utils import load_object
 
 
 logger = logging.getLogger(__name__)
@@ -86,7 +87,11 @@ class GetProxy(object):
         anonymity = self._check_proxy_anonymity(response_json)
         if self.only_anonimous and anonymity == 'transparent':
             return
-        country = country or self.geoip_reader.country(host).country.iso_code
+        try:
+            country = country or \
+                self.geoip_reader.country(host).country.iso_code
+        except Exception:
+            country = "UNK"
         export_address = self._check_export_address(response_json)
 
         return {
@@ -151,21 +156,21 @@ class GetProxy(object):
             origin.remove(self.origin_ip)
         return origin
 
-    def _request_force_stop(self, signum, _):
-        logger.warning("[-] Cold shut down")
+    # def _request_force_stop(self, signum, _):
+    #     logger.warning("[-] Cold shut down")
+    #
+    #     raise SystemExit()
 
-        raise SystemExit()
-
-    def _request_stop(self, signum, _):
-        logger.debug("Got signal %s" % signal_name(signum))
-
-        signal.signal(signal.SIGINT, self._request_force_stop)
-        signal.signal(signal.SIGTERM, self._request_force_stop)
+    # def _request_stop(self, signum, _):
+    #     logger.debug("Got signal %s" % signal_name(signum))
+    #
+    #     signal.signal(signal.SIGINT, self._request_force_stop)
+    #     signal.signal(signal.SIGTERM, self._request_force_stop)
 
     def init(self):
         logger.debug("[*] Init")
-        signal.signal(signal.SIGINT, self._request_stop)
-        signal.signal(signal.SIGTERM, self._request_stop)
+        # signal.signal(signal.SIGINT, self._request_stop)
+        # signal.signal(signal.SIGTERM, self._request_stop)
 
         rp = requests.get('http://httpbin.org/get')
         self.origin_ip = rp.json().get('origin', '')
