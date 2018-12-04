@@ -5,6 +5,8 @@
 [![PyPI](https://img.shields.io/pypi/v/getproxy.svg)](https://pypi.python.org/pypi/getproxy)
 [![PyPI](https://img.shields.io/pypi/pyversions/getproxy.svg)](https://pypi.python.org/pypi/getproxy)
 
+This branch replaces gevent with threading. That's why it is much easier to use as a part of other projects: you do not have to deal with monkey patching.
+
 getproxy 是一个抓取发放代理网站，获取 http/https 代理的程序，
 每 15 min 会更新数据至 [fate0/proxylist](https://github.com/fate0/proxylist)
 
