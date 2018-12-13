@@ -49,7 +49,7 @@ class GetProxy(object):
 
             self.web_proxies.extend(plugin.result)
 
-    def _validate_proxy(self, proxy, scheme='http'):
+    def _validate_proxy(self, proxy, scheme='https'):
         country = proxy.get('country')
         host = proxy.get('host')
         port = proxy.get('port')
@@ -108,11 +108,11 @@ class GetProxy(object):
     def validate_proxy(self, queue, valid_proxies):
         while True:
             try:
-                proxy = queue.get(timeout=10)
+                proxy, scheme = queue.get(timeout=10)
                 logger.debug("validating proxy %s", proxy)
                 try:
-                    res = self._validate_proxy(proxy)
-                except:
+                    res = self._validate_proxy(proxy, scheme)
+                except Exception:
                     res = None
                 if res:
                     valid_proxies.append(res)
@@ -124,8 +124,13 @@ class GetProxy(object):
         valid_proxies = []
 
         queue = Queue()
-        for proxy in proxies:
-            queue.put(proxy)
+        if self.only_https:
+            schemes = ["https"]
+        else:
+            schemes = ["http", "https"]
+        for scheme in schemes:
+            for proxy in proxies:
+                queue.put((proxy, scheme))
 
         self.threads = [Thread(target=self.validate_proxy,
                                name="ProxyValidator " + str(x),
